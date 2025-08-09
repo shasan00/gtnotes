@@ -21,7 +21,7 @@ const Header = () => {
         </div>
         <nav className="flex items-center space-x-4">
           <Button variant="ghost" className="text-gt-gold hover:bg-gt-gold/10 hover:text-gt-gold">Upload</Button>
-          <Button className="bg-gt-gold text-gt-gold-foreground hover:bg-gt-gold/90">Sign In</Button>
+          <Button className="bg-gt-gold text-gt-gold-foreground hover:bg-gt-gold/90"><Link to="sign-in">Sign In</Link></Button>
         </nav>
       </div>
     </header>
