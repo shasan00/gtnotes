@@ -23,7 +23,7 @@ const Header = () => {
           <Button asChild variant="ghost" className="text-gt-gold hover:bg-gt-gold/10 hover:text-gt-gold">
             <Link to="/upload">Upload</Link>
           </Button>
-          <Button className="bg-gt-gold text-gt-gold-foreground hover:bg-gt-gold/90"><Link to="sign-in">Sign In</Link></Button>
+          <Button className="bg-gt-gold text-gt-gold-foreground hover:bg-gt-gold/90"><Link to="/sign-in">Sign In</Link></Button>
         </nav>
       </div>
     </header>
