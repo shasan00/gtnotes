@@ -20,7 +20,9 @@ const Header = () => {
           <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 text-muted-foreground" />
         </div>
         <nav className="flex items-center space-x-4">
-          <Button variant="ghost" className="text-gt-gold hover:bg-gt-gold/10 hover:text-gt-gold">Upload</Button>
+          <Button asChild variant="ghost" className="text-gt-gold hover:bg-gt-gold/10 hover:text-gt-gold">
+            <Link to="/upload">Upload</Link>
+          </Button>
           <Button className="bg-gt-gold text-gt-gold-foreground hover:bg-gt-gold/90"><Link to="sign-in">Sign In</Link></Button>
         </nav>
       </div>
