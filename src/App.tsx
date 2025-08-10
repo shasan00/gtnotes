@@ -22,7 +22,7 @@ const App = () => (
           <Route path="/" element={<Index />} />
           <Route path="/sign-in" element={<SignIn />} />
           <Route path="/register" element={<Register />} />
-          <Route path="/upload" element={<UploadPage />} />
+          <Route path="/upload" element={<Protected><UploadPage /></Protected>} />
           <Route path="/notes/:id" element={<NoteDetail />} />
           {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
           <Route path="*" element={<NotFound />} />
@@ -33,3 +33,12 @@ const App = () => (
 );
 
 export default App;
+
+function Protected({ children }: { children: React.ReactNode }) {
+  const token = typeof window !== "undefined" ? localStorage.getItem("auth_token") : null;
+  if (!token) {
+    window.location.href = "/sign-in";
+    return null;
+  }
+  return children;
+}
