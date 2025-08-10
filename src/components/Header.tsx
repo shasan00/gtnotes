@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -23,7 +23,7 @@ const Header = () => {
           <Button asChild variant="ghost" className="text-gt-gold hover:bg-gt-gold/10 hover:text-gt-gold">
             <Link to="/upload">Upload</Link>
           </Button>
-          <Button className="bg-gt-gold text-gt-gold-foreground hover:bg-gt-gold/90"><Link to="/sign-in">Sign In</Link></Button>
+          <AuthButtons />
         </nav>
       </div>
     </header>
@@ -31,3 +31,29 @@ const Header = () => {
 };
 
 export default Header;
+
+function AuthButtons() {
+  const [isAuthed, setIsAuthed] = useState(false);
+  useEffect(() => {
+    setIsAuthed(Boolean(localStorage.getItem("auth_token")));
+  }, []);
+  if (isAuthed) {
+    return (
+      <Button
+        variant="outline"
+        className="text-gt-gold hover:bg-gt-gold/10 hover:text-gt-gold"
+        onClick={() => {
+          localStorage.removeItem("auth_token");
+          window.location.reload();
+        }}
+      >
+        Logout
+      </Button>
+    );
+  }
+  return (
+    <Button className="bg-gt-gold text-gt-gold-foreground hover:bg-gt-gold/90">
+      <Link to="/sign-in">Sign In</Link>
+    </Button>
+  );
+}
