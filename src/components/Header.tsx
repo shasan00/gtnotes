@@ -12,7 +12,7 @@ const Header = () => {
         <Link to="/" className="text-2xl font-bold text-gt-gold hover:text-gt-gold/90 flex-shrink-0">
           GT Notes
         </Link>
-        <div className="relative flex-1 max-w-md mx-auto">
+        <div className="relative flex-1 max-w-2xl mx-auto">
           <Input
             type="text"
             placeholder="Search notes, professors, classes..."
