@@ -3,6 +3,7 @@ import cors from "cors";
 import cookieParser from "cookie-parser";
 import dotenv from "dotenv";
 import authRouter from "./routes/auth";
+import usersRouter from "./routes/users";
 import passport from "passport";
 import session from "express-session";
 import { configureGoogleStrategy, initializePassport } from "./services/googleStrategy";
@@ -36,6 +37,7 @@ app.get("/api/health", (_req, res) => {
 });
 
 app.use("/api/auth", authRouter);
+app.use("/api/users", usersRouter);
 
 const port = process.env.PORT ? Number(process.env.PORT) : 4000;
 

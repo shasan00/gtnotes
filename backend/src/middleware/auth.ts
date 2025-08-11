@@ -1,11 +1,12 @@
 import { Request, Response, NextFunction } from "express";
 import jwt from "jsonwebtoken";
+import { getPool } from "../db/pool";
 
 export interface AuthRequest extends Request {
-  userId?: string;
+  user?: any;
 }
 
-export function requireAuth(req: AuthRequest, res: Response, next: NextFunction) {
+export async function authenticate(req: AuthRequest, res: Response, next: NextFunction) {
   const authHeader = req.headers.authorization;
   const token = authHeader?.startsWith("Bearer ") ? authHeader.slice(7) : undefined;
   if (!token) return res.status(401).json({ error: "Missing token" });
@@ -13,7 +14,11 @@ export function requireAuth(req: AuthRequest, res: Response, next: NextFunction)
   if (!secret) return res.status(500).json({ error: "Server misconfigured" });
   try {
     const payload = jwt.verify(token, secret) as { sub: string };
-    req.userId = payload.sub;
+    const result = await getPool().query("SELECT * FROM users WHERE id = $1", [payload.sub]);
+    if (result.rowCount === 0) {
+      return res.status(401).json({ error: "Invalid token" });
+    }
+    req.user = result.rows[0];
     next();
   } catch {
     return res.status(401).json({ error: "Invalid token" });
