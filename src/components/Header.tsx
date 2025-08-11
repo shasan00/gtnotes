@@ -8,7 +8,7 @@ import { ThemeToggle } from "./ThemeToggle";
 const Header = () => {
   return (
     <header className="sticky top-0 z-40 w-full border-b bg-background text-foreground shadow-sm">
-      <div className="container flex h-16 items-center py-4">
+      <div className="flex h-16 items-center py-4 px-6">
         <Link to="/" className="text-2xl font-bold text-gt-gold hover:text-gt-gold/90 flex-shrink-0">
           GT Notes
         </Link>
