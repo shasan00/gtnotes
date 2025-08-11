@@ -8,11 +8,11 @@ import { ThemeToggle } from "./ThemeToggle";
 const Header = () => {
   return (
     <header className="sticky top-0 z-40 w-full border-b bg-background text-foreground shadow-sm">
-      <div className="container flex h-16 items-center justify-between py-4">
-        <Link to="/" className="text-2xl font-bold text-gt-gold hover:text-gt-gold/90">
+      <div className="container flex h-16 items-center py-4">
+        <Link to="/" className="text-2xl font-bold text-gt-gold hover:text-gt-gold/90 flex-shrink-0">
           GT Notes
         </Link>
-        <div className="relative flex-1 max-w-md mx-4">
+        <div className="relative flex-1 max-w-md mx-auto">
           <Input
             type="text"
             placeholder="Search notes, professors, classes..."
@@ -20,7 +20,7 @@ const Header = () => {
           />
           <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 text-muted-foreground" />
         </div>
-        <nav className="flex items-center space-x-4">
+        <nav className="flex items-center space-x-4 flex-shrink-0">
           <Button asChild variant="ghost" className="text-gt-gold hover:bg-gt-gold/10 hover:text-gt-gold">
             <Link to="/upload">Upload</Link>
           </Button>
