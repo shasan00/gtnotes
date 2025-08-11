@@ -39,7 +39,7 @@ router.post("/signup", async (req, res) => {
     }
     const hash = await bcrypt.hash(password, 10);
     const result = await getPool().query(
-      "insert into users (email, password_hash, first_name, last_name) values ($1,$2,$3,$4) returning id, email, first_name, last_name",
+      "insert into users (email, password_hash, first_name, last_name) values ($1,$2,$3,$4) returning id, email, first_name, last_name, role",
       [email, hash, firstName, lastName]
     );
     const user = result.rows[0];
@@ -59,7 +59,7 @@ router.post("/login", async (req, res) => {
   const { email, password } = parsed.data;
   try {
     const result = await getPool().query(
-      "select id, email, password_hash, first_name, last_name from users where email=$1",
+      "select id, email, password_hash, first_name, last_name, role from users where email=$1",
       [email]
     );
     if (result.rowCount === 0) return res.status(401).json({ error: "Invalid credentials" });
