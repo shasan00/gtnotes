@@ -64,8 +64,8 @@ export default {
         },
         // Georgia Tech Colors
         "gt-gold": {
-          DEFAULT: "#B3A369",
-          foreground: "#FFFFFF", // White text on gold background
+          DEFAULT: "hsl(var(--gt-gold))",
+          foreground: "hsl(var(--gt-gold-foreground))",
         },
         "gt-white": {
           DEFAULT: "#FFFFFF",

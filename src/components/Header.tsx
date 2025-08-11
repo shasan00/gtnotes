@@ -3,10 +3,11 @@ import { Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Search } from "lucide-react";
+import { ThemeToggle } from "./ThemeToggle";
 
 const Header = () => {
   return (
-    <header className="sticky top-0 z-40 w-full border-b bg-gt-white text-gt-gold-foreground shadow-sm">
+    <header className="sticky top-0 z-40 w-full border-b bg-background text-foreground shadow-sm">
       <div className="container flex h-16 items-center justify-between py-4">
         <Link to="/" className="text-2xl font-bold text-gt-gold hover:text-gt-gold/90">
           GT Notes
@@ -15,7 +16,7 @@ const Header = () => {
           <Input
             type="text"
             placeholder="Search notes, professors, classes..."
-            className="w-full pl-10 pr-4 py-2 rounded-md border border-input focus:ring-gt-gold focus:border-gt-gold"
+            className="w-full pl-10 pr-4 py-2 rounded-md border border-input focus:ring-gt-gold focus:border-gt-gold bg-background"
           />
           <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 text-muted-foreground" />
         </div>
@@ -23,6 +24,7 @@ const Header = () => {
           <Button asChild variant="ghost" className="text-gt-gold hover:bg-gt-gold/10 hover:text-gt-gold">
             <Link to="/upload">Upload</Link>
           </Button>
+          <ThemeToggle />
           <AuthButtons />
         </nav>
       </div>
