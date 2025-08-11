@@ -136,4 +136,4 @@ dist
 .pnp.*
 
 # ai agent context md file
-.context.md
+.CONTEXT.md
