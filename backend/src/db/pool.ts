@@ -28,6 +28,7 @@ export async function initDb(): Promise<void> {
       google_id text,
       first_name text,
       last_name text,
+      role text not null default 'user',
       created_at timestamptz not null default now(),
       updated_at timestamptz not null default now()
     );
@@ -47,6 +48,14 @@ export async function initDb(): Promise<void> {
       `create unique index if not exists idx_users_google_id on users(google_id) where google_id is not null;`
     )
     .catch(() => {});
+  try {
+    await p.query(`ALTER TABLE users ADD COLUMN role text not null default 'user';`);
+  } catch (e: any) {
+    // column already exists, ignore error
+    if (!e.message?.includes('already exists')) {
+      console.warn('Could not add role column:', e.message);
+    }
+  }
 }
 
 
