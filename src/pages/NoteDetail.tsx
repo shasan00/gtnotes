@@ -1,15 +1,61 @@
-import React from 'react';
-import { useParams, Link as RouterLink } from 'react-router-dom';
+import React, { useEffect, useState } from 'react';
+import { useParams, Link as RouterLink, useNavigate } from 'react-router-dom';
 import Layout from '@/components/Layout';
-import { mockNotes } from '../data/mockNotes.ts';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
-import { BookOpen, User, CalendarDays, ArrowLeft } from 'lucide-react';
+import { BookOpen, User, CalendarDays, ArrowLeft, Loader2 } from 'lucide-react';
+import { NotesService, Note } from '@/services/notesService';
+
+const formatSemester = (semester: string): string => {
+  if (!semester) return '';
+  const [season, year] = semester.split('-');
+  if (!season || !year) return semester; // Return as is if format is unexpected
+  
+  // Capitalize first letter of season and add space before year
+  return `${season.charAt(0).toUpperCase() + season.slice(1)} ${year}`;
+};
 
 const NoteDetail = () => {
   const { id } = useParams<{ id: string }>();
-  const note = mockNotes.find(n => n.id === parseInt(id || ''));
+  const [note, setNote] = useState<Note | null>(null);
+  const [isLoading, setIsLoading] = useState(true);
+  const navigate = useNavigate();
+
+  useEffect(() => {
+    const fetchNote = async () => {
+      if (!id) return;
+      
+      setIsLoading(true);
+      try {
+
+        const response = await NotesService.getNoteById(id);
+        if (!response || !response.note) {
+          // If note not found, navigate to 404 or home
+          navigate('/');
+          return;
+        }
+        setNote(response.note);
+      } catch (error) {
+        console.error('Error fetching note:', error);
+        // Handle error (e.g., show error message)
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
+    fetchNote();
+  }, [id, navigate]);
+
+  if (isLoading) {
+    return (
+      <Layout>
+        <div className="flex items-center justify-center h-64">
+          <Loader2 className="h-8 w-8 animate-spin text-primary" />
+        </div>
+      </Layout>
+    );
+  }
 
   if (!note) {
     return (
@@ -47,7 +93,7 @@ const NoteDetail = () => {
             <div className="flex items-center text-lg">
               <BookOpen className="h-5 w-5 mr-3 text-muted-foreground" />
               <span className="font-semibold mr-2">Class:</span>
-              <span>{note.classCode}</span>
+              <span>{note.classCode || note.course}</span>
             </div>
             <div className="flex items-center text-lg">
               <User className="h-5 w-5 mr-3 text-muted-foreground" />
@@ -57,14 +103,36 @@ const NoteDetail = () => {
             <div className="flex items-center text-lg">
               <CalendarDays className="h-5 w-5 mr-3 text-muted-foreground" />
               <span className="font-semibold mr-2">Semester:</span>
-              <span>{note.semester}</span>
+              <span>{formatSemester(note.semester)}</span>
             </div>
             <div className="mt-6 border-t pt-6">
               <h3 className="text-xl font-semibold mb-4">Note Content</h3>
-              <div className="p-8 border rounded-md bg-muted/40">
-                <p className="text-muted-foreground text-center">
-                  [Placeholder for the actual note content, e.g., a PDF viewer or markdown renderer.]
-                </p>
+              <div className="border rounded-md bg-muted/40 overflow-hidden">
+                {note.fileUrl ? (
+                  <iframe 
+                    src={note.fileUrl} 
+                    className="w-full h-[600px] border-0"
+                    title={note.title}
+                  >
+                    <p>Your browser does not support iframes. You can download the PDF instead: <a href={note.fileUrl} className="text-primary hover:underline">Download PDF</a></p>
+                  </iframe>
+                ) : (
+                  <div className="p-8 text-center">
+                    <p className="text-muted-foreground">Unable to load the note content. The file may be missing or inaccessible.</p>
+                    {note.fileName && (
+                      <p className="mt-2">
+                        <a 
+                          href={note.fileUrl} 
+                          target="_blank" 
+                          rel="noopener noreferrer"
+                          className="text-primary hover:underline"
+                        >
+                          Try opening {note.fileName} in a new tab
+                        </a>
+                      </p>
+                    )}
+                  </div>
+                )}
               </div>
             </div>
           </CardContent>
