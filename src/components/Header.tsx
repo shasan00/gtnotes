@@ -37,19 +37,13 @@ export default Header;
 function AuthButtons() {
   const [isAuthed, setIsAuthed] = useState(false);
   useEffect(() => {
-    setIsAuthed(Boolean(localStorage.getItem("auth_token")));
+    const token = localStorage.getItem("auth_token");
+    setIsAuthed(Boolean(token));
   }, []);
   if (isAuthed) {
     return (
-      <Button
-        variant="outline"
-        className="text-gt-gold hover:bg-gt-gold/10 hover:text-gt-gold"
-        onClick={() => {
-          localStorage.removeItem("auth_token");
-          window.location.reload();
-        }}
-      >
-        Logout
+      <Button asChild className="bg-gt-gold text-gt-gold-foreground hover:bg-gt-gold/90">
+        <Link to="/profile">Profile</Link>
       </Button>
     );
   }

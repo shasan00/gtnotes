@@ -10,6 +10,7 @@ import Register from "./pages/Register";
 import NotFound from "./pages/NotFound";
 import NoteDetail from "./pages/NoteDetail";
 import UploadPage from "./pages/UploadPage";
+import Profile from "./pages/Profile";
 
 const queryClient = new QueryClient();
 
