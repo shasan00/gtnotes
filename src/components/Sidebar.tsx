@@ -158,7 +158,7 @@ const Sidebar = () => {
   ].length;
 
   return (
-    <aside className="w-72 border-r bg-background p-4 overflow-y-auto">
+    <aside className="w-72 border-r bg-card p-4 overflow-y-auto">
       <div className="flex items-center justify-between mb-4">
         <h2 className="text-xl font-semibold flex items-center gap-2 text-gt-gold">
           <SlidersHorizontal className="h-5 w-5" />
