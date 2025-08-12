@@ -1,8 +1,7 @@
 import express from 'express';
 import multer from 'multer';
 import { NotesService } from '../services/notesService';
-import { isAuthenticated } from '../middleware/auth';
-import { isAdmin } from '../middleware/auth';
+import { isAuthenticated, isAdmin, AuthRequest } from '../middleware/auth';
 
 const router = express.Router();
 
@@ -23,7 +22,7 @@ const upload = multer({
 });
 
 // Upload a new note
-router.post('/upload', isAuthenticated, upload.single('file'), async (req, res) => {
+router.post('/upload', isAuthenticated, upload.single('file'), async (req: AuthRequest, res) => {
   try {
     if (!req.file) {
       return res.status(400).json({ error: 'No file uploaded' });
@@ -79,7 +78,7 @@ router.get('/', async (req, res) => {
 });
 
 // Get notes uploaded by the current user
-router.get('/my-notes', isAuthenticated, async (req, res) => {
+router.get('/my-notes', isAuthenticated, async (req: AuthRequest, res) => {
   try {
     if (!req.user?.id) {
       return res.status(401).json({ error: 'User not authenticated' });
@@ -111,7 +110,7 @@ router.get('/:noteId', async (req, res) => {
 });
 
 // Delete a note (only by owner)
-router.delete('/:noteId', isAuthenticated, async (req, res) => {
+router.delete('/:noteId', isAuthenticated, async (req: AuthRequest, res) => {
   try {
     if (!req.user?.id) {
       return res.status(401).json({ error: 'User not authenticated' });
@@ -138,7 +137,7 @@ router.get('/admin/pending', isAuthenticated, isAdmin, async (req, res) => {
   }
 });
 
-router.post('/admin/:noteId/approve', isAuthenticated, isAdmin, async (req, res) => {
+router.post('/admin/:noteId/approve', isAuthenticated, isAdmin, async (req: AuthRequest, res) => {
   try {
     if (!req.user?.id) {
       return res.status(401).json({ error: 'User not authenticated' });
@@ -157,14 +156,14 @@ router.post('/admin/:noteId/approve', isAuthenticated, isAdmin, async (req, res)
   }
 });
 
-router.post('/admin/:noteId/reject', isAuthenticated, isAdmin, async (req, res) => {
+router.post('/admin/:noteId/reject', isAuthenticated, isAdmin, async (req: AuthRequest, res) => {
   try {
     if (!req.user?.id) {
       return res.status(401).json({ error: 'User not authenticated' });
     }
 
     const { noteId } = req.params;
-    const [updatedNote] = await NotesService.rejectNote(noteId, req.user.id);
+    const updatedNote = await NotesService.rejectNote(noteId, req.user.id);
 
     res.json({
       message: 'Note rejected successfully',
