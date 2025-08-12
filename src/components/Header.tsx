@@ -58,25 +58,27 @@ function AuthButtons() {
   }, []);
 
   if (isAuthed) {
-    return (
-      <div className="flex items-center space-x-2">
-        {isAdmin && (
-          <Button
-            asChild
-            className="bg-emerald-600 text-white hover:bg-emerald-700"
-          >
-            <Link to="/admin">Admin</Link>
-          </Button>
-        )}
-        <Button asChild className="bg-gt-gold text-gt-gold-foreground hover:bg-gt-gold/90">
-          <Link to="/profile">Profile</Link>
-        </Button>
-      </div>
-    );
-  }
-  return (
-    <Button className="bg-gt-gold text-gt-gold-foreground hover:bg-gt-gold/90">
-      <Link to="/sign-in">Sign In</Link>
+return (
+  <div className="flex items-center space-x-2">
+    {isAdmin && (
+      <Button
+        asChild
+        className="bg-emerald-600 text-white hover:bg-emerald-700"
+      >
+        <Link to="/admin">Admin</Link>
+      </Button>
+    )}
+    <Button
+      asChild
+      className="bg-gt-gold text-gt-gold-foreground hover:bg-gt-gold/90"
+    >
+      <Link to="/profile">Profile</Link>
     </Button>
-  );
+  </div>
+);
 }
+return (
+  <Button className="bg-gt-gold text-gt-gold-foreground hover:bg-gt-gold/90">
+    <Link to="/sign-in">Sign In</Link>
+  </Button>
+);
