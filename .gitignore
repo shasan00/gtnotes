@@ -137,3 +137,8 @@ dist
 
 # ai agent context md file
 .CONTEXT.md
+
+# MacOS specific files
+*/.DS_Store
+*/*/.DS_Store
+.DS_Store
