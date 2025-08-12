@@ -45,7 +45,12 @@ export class NotesService {
   }
 
   static async getAllNotes() {
-    return await getDb().select().from(notes).orderBy(notes.createdAt);
+    // public notes: only approved
+    return await getDb()
+      .select()
+      .from(notes)
+      .where(eq(notes.status, 'approved'))
+      .orderBy(notes.createdAt);
   }
 
   static async getNotesByUser(userId: string) {

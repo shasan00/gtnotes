@@ -10,8 +10,8 @@ export function useNotes() {
     try {
       setLoading(true);
       setError(null);
-      const pendingNotes = await NotesService.getNotes();
-      setNotes(pendingNotes);
+      const approvedNotes = await NotesService.getApprovedNotes();
+      setNotes(approvedNotes);
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Failed to fetch notes');
     } finally {
