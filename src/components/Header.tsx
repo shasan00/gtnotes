@@ -61,7 +61,10 @@ function AuthButtons() {
     return (
       <div className="flex items-center space-x-2">
         {isAdmin && (
-          <Button asChild variant="ghost" className="text-gt-gold hover:bg-gt-gold/10 hover:text-gt-gold">
+          <Button
+            asChild
+            className="bg-emerald-600 text-white hover:bg-emerald-700"
+          >
             <Link to="/admin">Admin</Link>
           </Button>
         )}
