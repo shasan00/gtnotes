@@ -49,9 +49,6 @@ function AuthButtons() {
   if (isAuthed) {
     return (
       <div className="flex items-center space-x-2">
-        <Button asChild variant="ghost" className="text-gt-gold hover:bg-gt-gold/10 hover:text-gt-gold">
-          <Link to="/upload">Upload</Link>
-        </Button>
         <Button asChild className="bg-gt-gold text-gt-gold-foreground hover:bg-gt-gold/90">
           <Link to="/profile">Profile</Link>
         </Button>
