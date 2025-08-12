@@ -36,28 +36,50 @@ export default Header;
 
 function AuthButtons() {
   const [isAuthed, setIsAuthed] = useState(false);
+  const [isAdmin, setIsAdmin] = useState(false);
 
   useEffect(() => {
     const token = localStorage.getItem("auth_token");
     if (token) {
       setIsAuthed(true);
+      try {
+        const base64Url = token.split(".")[1];
+        const base64 = base64Url.replace(/-/g, "+").replace(/_/g, "/");
+        const padded = base64 + "===".slice((base64.length + 3) % 4);
+        const payload = JSON.parse(atob(padded));
+        setIsAdmin(payload?.role === "admin");
+      } catch {
+        setIsAdmin(false);
+      }
     } else {
       setIsAuthed(false);
+      setIsAdmin(false);
     }
   }, []);
 
   if (isAuthed) {
-    return (
-      <div className="flex items-center space-x-2">
-        <Button asChild className="bg-gt-gold text-gt-gold-foreground hover:bg-gt-gold/90">
-          <Link to="/profile">Profile</Link>
-        </Button>
-      </div>
-    );
-  }
-  return (
-    <Button className="bg-gt-gold text-gt-gold-foreground hover:bg-gt-gold/90">
-      <Link to="/sign-in">Sign In</Link>
+return (
+  <div className="flex items-center space-x-2">
+    {isAdmin && (
+      <Button
+        asChild
+        className="bg-emerald-600 text-white hover:bg-emerald-700"
+      >
+        <Link to="/admin">Admin</Link>
+      </Button>
+    )}
+    <Button
+      asChild
+      className="bg-gt-gold text-gt-gold-foreground hover:bg-gt-gold/90"
+    >
+      <Link to="/profile">Profile</Link>
     </Button>
-  );
+  </div>
+);
+}
+return (
+  <Button className="bg-gt-gold text-gt-gold-foreground hover:bg-gt-gold/90">
+    <Link to="/sign-in">Sign In</Link>
+  </Button>
+);
 }

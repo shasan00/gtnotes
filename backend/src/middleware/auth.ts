@@ -46,10 +46,11 @@ export function isAuthenticated(req: AuthRequest, res: Response, next: NextFunct
   }
 
   try {
-    const payload = jwt.verify(token, secret) as { sub: string };
-    // Set req.user for consistency with session-based auth
-    req.user = { id: payload.sub };
+    const payload = jwt.verify(token, secret) as { sub: string; role?: string };
+
+    req.user = { id: payload.sub, role: payload.role };
     next();
+    
   } catch {
     return res.status(401).json({ error: 'Invalid token' });
   }

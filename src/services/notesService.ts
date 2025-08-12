@@ -101,4 +101,78 @@ export class NotesService {
       return null;
     }
   }
+
+  static async getPendingNotes(): Promise<Note[]> {
+    try {
+      const token = localStorage.getItem('auth_token');
+      if (!token) throw new Error('Authentication required');
+
+      const response = await fetch('/api/notes/admin/pending', {
+        headers: {
+          'Authorization': `Bearer ${token}`, // api
+        },
+        credentials: 'include',
+      });
+
+      if (!response.ok) {
+        throw new Error('Failed to fetch pending notes');
+      }
+
+      const data: NotesResponse = await response.json();
+      return data.notes;
+    } catch (error) {
+      console.error('Error fetching pending notes:', error);
+      return [];
+    }
+  }
+
+  static async approveNote(noteId: string): Promise<Note | null> {
+    try {
+      const token = localStorage.getItem('auth_token');
+      if (!token) throw new Error('Authentication required');
+
+      const response = await fetch(`/api/notes/admin/${noteId}/approve`, {
+        method: 'POST',
+        headers: {
+          'Authorization': `Bearer ${token}`,
+        },
+        credentials: 'include',
+      });
+
+      if (!response.ok) {
+        throw new Error('Failed to approve note');
+      }
+
+      const data: { note: Note } = await response.json();
+      return data.note;
+    } catch (error) {
+      console.error('Error approving note:', error);
+      return null;
+    }
+  }
+
+  static async rejectNote(noteId: string): Promise<Note | null> {
+    try {
+      const token = localStorage.getItem('auth_token');
+      if (!token) throw new Error('Authentication required');
+
+      const response = await fetch(`/api/notes/admin/${noteId}/reject`, {
+        method: 'POST',
+        headers: {
+          'Authorization': `Bearer ${token}`,
+        },
+        credentials: 'include',
+      });
+
+      if (!response.ok) {
+        throw new Error('Failed to reject note');
+      }
+
+      const data: { note: Note } = await response.json();
+      return data.note;
+    } catch (error) {
+      console.error('Error rejecting note:', error);
+      return null;
+    }
+  }
 }

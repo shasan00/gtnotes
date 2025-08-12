@@ -45,7 +45,12 @@ export class NotesService {
   }
 
   static async getAllNotes() {
-    return await getDb().select().from(notes).orderBy(notes.createdAt);
+    // public notes: only approved
+    return await getDb()
+      .select()
+      .from(notes)
+      .where(eq(notes.status, 'approved'))
+      .orderBy(notes.createdAt);
   }
 
   static async getNotesByUser(userId: string) {
@@ -69,15 +74,25 @@ export class NotesService {
   }
 
   static async rejectNote(noteId: string, adminUserId: string) {
-    return await getDb()
-      .update(notes)
-      .set({ 
-        status: 'rejected', 
-        approvedBy: adminUserId,
-        updatedAt: new Date()
-      })
-      .where(eq(notes.id, noteId))
-      .returning();
+    // gets note from db
+    const [note] = await getDb().select().from(notes).where(eq(notes.id, noteId));
+    if (!note) {
+      throw new Error('Note not found');
+    }
+
+    // deletes from s3
+    await S3Service.deleteFile(note.fileKey);
+
+    // removes from db
+    await getDb().delete(notes).where(eq(notes.id, noteId));
+
+    
+    return { // returns the deleted note payload for client confirmation
+      ...note,
+      status: 'rejected',
+      approvedBy: adminUserId,
+      updatedAt: new Date(),
+    };
   }
 
   static async getNoteById(noteId: string) {

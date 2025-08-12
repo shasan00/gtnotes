@@ -6,7 +6,10 @@ const router = Router();
 
 router.get('/me', authenticate, async (req: any, res) => {
   try {
-    const result = await getPool().query('SELECT first_name, last_name, email FROM users WHERE id = $1', [req.user.id]);
+    const result = await getPool().query(
+      'SELECT id, first_name, last_name, email, role FROM users WHERE id = $1',
+      [req.user.id]
+    );
     if (result.rowCount === 0) {
       return res.status(404).json({ error: 'User not found' });
     }

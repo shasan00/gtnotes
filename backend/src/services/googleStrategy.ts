@@ -38,14 +38,20 @@ export function configureGoogleStrategy(): void {
           const pool = getPool();
 
           // if user exists with google_id will return 
-          const byGoogle = await pool.query("select id, email, first_name, last_name from users where google_id=$1", [googleId]);
+          const byGoogle = await pool.query(
+            "select id, email, first_name, last_name, role from users where google_id=$1",
+            [googleId]
+          );
           if (byGoogle.rowCount && byGoogle.rowCount > 0) {
             return done(null, byGoogle.rows[0]);
           }
 
           if (email) {
             // if user exists by email, merge by setting google_id
-            const byEmail = await pool.query("select id, email, first_name, last_name from users where email=$1", [email]);
+            const byEmail = await pool.query(
+              "select id, email, first_name, last_name, role from users where email=$1",
+              [email]
+            );
             if (byEmail.rowCount && byEmail.rowCount > 0) {
               const existing = byEmail.rows[0];
               await pool.query("update users set google_id=$1, updated_at=now() where id=$2", [googleId, existing.id]);
@@ -57,7 +63,7 @@ export function configureGoogleStrategy(): void {
 
           // creates new user
           const insert = await pool.query(
-            "insert into users (email, google_id, first_name, last_name) values ($1,$2,$3,$4) returning id, email, first_name, last_name",
+            "insert into users (email, google_id, first_name, last_name) values ($1,$2,$3,$4) returning id, email, first_name, last_name, role",
             [email, googleId, firstName, lastName]
           );
           return done(null, insert.rows[0]);
