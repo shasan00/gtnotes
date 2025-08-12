@@ -62,27 +62,14 @@ router.post("/login", async (req, res) => {
       "select id, email, password_hash, first_name, last_name, role, google_id from users where email=$1",
       [email]
     );
-    console.log("Login attempt for email:", email);
-    if (result.rowCount === 0) {
-      console.log("User not found for email:", email);
-      return res.status(401).json({ error: "Invalid credentials" });
-    }
+    if (result.rowCount === 0) return res.status(401).json({ error: "Invalid credentials" });
     const user = result.rows[0];
-    console.log("User found:", { id: user.id, email: user.email, hasPasswordHash: !!user.password_hash, hasGoogleId: !!user.google_id });
-
-    if (!user.password_hash) {
-      console.log("User has no password hash, redirecting to Google SSO flow is likely happening on frontend.");
-      // This scenario should ideally return an error, not redirect.
-      // The frontend should handle this by prompting the user to use SSO or register a password.
-      return res.status(401).json({ error: "Account requires Google SSO or password not set. Please use Google login." });
+    // If the user has a google_id but no password_hash, they should use Google SSO
+    if (!user.password_hash && user.google_id) {
+      return res.status(401).json({ error: "Account requires Google SSO. Please use Google login." });
     }
-
     const ok = await bcrypt.compare(password, user.password_hash);
-    if (!ok) {
-      console.log("Password mismatch for user:", user.email);
-      return res.status(401).json({ error: "Invalid credentials" });
-    }
-    console.log("Password matched for user:", user.email);
+    if (!ok) return res.status(401).json({ error: "Invalid credentials" });
     const token = createJwt(user.id, user.role);
     delete user.password_hash;
     res.json({ user, token });
