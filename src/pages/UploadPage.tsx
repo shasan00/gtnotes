@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useDropzone } from "react-dropzone";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
@@ -14,6 +14,7 @@ export default function UploadPage() {
   const [isUploading, setIsUploading] = useState(false);
   const [isSuccess, setIsSuccess] = useState(false);
   const [formData, setFormData] = useState({
+    title: "",
     course: "",
     professor: "",
     semester: "",
@@ -23,9 +24,6 @@ export default function UploadPage() {
   const { getRootProps, getInputProps, isDragActive } = useDropzone({
     accept: {
       'application/pdf': ['.pdf'],
-      'application/msword': ['.doc'],
-      'application/vnd.openxmlformats-officedocument.wordprocessingml.document': ['.docx'],
-      'text/plain': ['.txt'],
     },
     maxFiles: 1,
     onDrop: (acceptedFiles) => {
@@ -54,21 +52,51 @@ export default function UploadPage() {
 
     setIsUploading(true);
     
-    // Simulate upload
     try {
-      // TODO: Replace with actual API call
-      await new Promise(resolve => setTimeout(resolve, 1500));
+      const formDataToSend = new FormData();
+      formDataToSend.append('file', file);
+      formDataToSend.append('title', formData.title);
+      formDataToSend.append('course', formData.course);
+      formDataToSend.append('professor', formData.professor);
+      formDataToSend.append('semester', formData.semester);
+      formDataToSend.append('description', formData.description);
+
+      const token = localStorage.getItem('auth_token');
+      if (!token) {
+        throw new Error('Authentication required. Please sign in again.');
+      }
+
+      const response = await fetch('/api/notes/upload', {
+        method: 'POST',
+        body: formDataToSend,
+        headers: {
+          'Authorization': `Bearer ${token}`,
+        },
+        credentials: 'include',
+      });
+
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.error || 'Upload failed');
+      }
+
       setIsSuccess(true);
+      
+      // Trigger a custom event to notify other components that notes have been updated
+      window.dispatchEvent(new CustomEvent('notesUpdated'));
+      
       // Reset form after successful upload
       setFile(null);
       setFormData({
+        title: "",
         course: "",
         professor: "",
         semester: "",
         description: "",
       });
-    } catch (error) {
+    } catch (error: any) {
       console.error("Upload failed:", error);
+      alert(error.message || 'Upload failed. Please try again.');
     } finally {
       setIsUploading(false);
     }
@@ -112,7 +140,7 @@ export default function UploadPage() {
                   ) : (
                     <>
                       <p className="font-medium">Drag & drop a file here, or click to select</p>
-                      <p className="text-sm text-muted-foreground">PDF, DOC, DOCX, TXT (Max 10MB)</p>
+                      <p className="text-sm text-muted-foreground">PDF files only (Max 10MB)</p>
                     </>
                   )}
                 </div>
@@ -141,6 +169,18 @@ export default function UploadPage() {
               )}
 
               {/* Form Fields */}
+              <div className="space-y-2">
+                <Label htmlFor="title" className="text-gt-gold">Title</Label>
+                <Input
+                  id="title"
+                  name="title"
+                  value={formData.title}
+                  onChange={handleInputChange}
+                  placeholder="e.g., Introduction to Object-Oriented Programming"
+                  required
+                />
+              </div>
+              
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div className="space-y-2">
                   <Label htmlFor="course" className="text-gt-gold">Course</Label>

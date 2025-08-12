@@ -25,4 +25,43 @@ export async function authenticate(req: AuthRequest, res: Response, next: NextFu
   }
 }
 
+// Middleware for checking if user is authenticated (using both session and JWT)
+export function isAuthenticated(req: AuthRequest, res: Response, next: NextFunction) {
+  // Check if user is authenticated via session (from Passport)
+  if (req.user) {
+    return next();
+  }
+
+  // Check if user is authenticated via JWT token
+  const authHeader = req.headers.authorization;
+  const token = authHeader?.startsWith("Bearer ") ? authHeader.slice(7) : undefined;
+  
+  if (!token) {
+    return res.status(401).json({ error: 'Authentication required' });
+  }
+
+  const secret = process.env.JWT_SECRET;
+  if (!secret) {
+    return res.status(500).json({ error: 'Server misconfigured' });
+  }
+
+  try {
+    const payload = jwt.verify(token, secret) as { sub: string };
+    // Set req.user for consistency with session-based auth
+    req.user = { id: payload.sub };
+    next();
+  } catch {
+    return res.status(401).json({ error: 'Invalid token' });
+  }
+}
+
+// Middleware for checking if user is admin
+export function isAdmin(req: AuthRequest, res: Response, next: NextFunction) {
+  if (req.user && req.user.role === 'admin') {
+    next();
+  } else {
+    res.status(403).json({ error: 'Admin access required' });
+  }
+}
+
 

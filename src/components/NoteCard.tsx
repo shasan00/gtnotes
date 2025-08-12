@@ -6,20 +6,28 @@ import { cn } from "@/lib/utils";
 import { FileText, BookOpen, CalendarDays, User } from "lucide-react";
 
 interface NoteCardProps {
-  id: number;
+  id: string;
   title: string;
-  description: string;
-  classCode: string;
+  description?: string;
+  course: string;
   professor: string;
   semester: string;
-  type: "Notes" | "Exam" | "Homework";
+  status: 'pending' | 'approved' | 'rejected';
+  fileName: string;
+  createdAt: string;
 }
 
-const NoteCard: React.FC<NoteCardProps> = ({ id, title, description, classCode, professor, semester, type }) => {
-  const typeIcon = {
-    Notes: <BookOpen className="h-4 w-4 mr-2" />,
-    Exam: <FileText className="h-4 w-4 mr-2" />,
-    Homework: <FileText className="h-4 w-4 mr-2" />,
+const NoteCard: React.FC<NoteCardProps> = ({ id, title, description, course, professor, semester, status, fileName, createdAt }) => {
+  const statusIcon = {
+    approved: <BookOpen className="h-4 w-4 mr-2" />,
+    pending: <FileText className="h-4 w-4 mr-2" />,
+    rejected: <FileText className="h-4 w-4 mr-2" />,
+  };
+
+  const statusColor = {
+    approved: 'text-green-600',
+    pending: 'text-yellow-600',
+    rejected: 'text-red-600',
   };
 
   return (
@@ -29,13 +37,13 @@ const NoteCard: React.FC<NoteCardProps> = ({ id, title, description, classCode, 
         <CardDescription className="text-sm text-muted-foreground line-clamp-2 h-10">{description}</CardDescription>
       </CardHeader>
       <CardContent className="space-y-2 text-sm flex-grow">
-        <div className="flex items-center text-gt-gold">
-          {typeIcon[type]}
-          <span className="font-medium">{type}</span>
+        <div className={`flex items-center ${statusColor[status]}`}>
+          {statusIcon[status]}
+          <span className="font-medium capitalize">{status}</span>
         </div>
         <div className="flex items-center text-gray-700 dark:text-gray-300">
           <BookOpen className="h-4 w-4 mr-2 text-muted-foreground" />
-          <span>{classCode}</span>
+          <span>{course}</span>
         </div>
         <div className="flex items-center text-gray-700 dark:text-gray-300">
           <User className="h-4 w-4 mr-2 text-muted-foreground" />
@@ -44,6 +52,14 @@ const NoteCard: React.FC<NoteCardProps> = ({ id, title, description, classCode, 
         <div className="flex items-center text-gray-700 dark:text-gray-300">
           <CalendarDays className="h-4 w-4 mr-2 text-muted-foreground" />
           <span>{semester}</span>
+        </div>
+        <div className="flex items-center text-gray-700 dark:text-gray-300">
+          <FileText className="h-4 w-4 mr-2 text-muted-foreground" />
+          <span className="truncate">{fileName}</span>
+        </div>
+        <div className="flex items-center text-gray-700 dark:text-gray-300">
+          <CalendarDays className="h-4 w-4 mr-2 text-muted-foreground" />
+          <span>{new Date(createdAt).toLocaleDateString()}</span>
         </div>
       </CardContent>
       <CardFooter>

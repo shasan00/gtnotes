@@ -33,6 +33,38 @@ export async function initDb(): Promise<void> {
       updated_at timestamptz not null default now()
     );
   `);
+  
+  // Create notes table
+  await p.query(`
+    create table if not exists notes (
+      id uuid primary key default gen_random_uuid(),
+      title text not null,
+      course text not null,
+      professor text not null,
+      semester text not null,
+      description text,
+      file_key text not null,
+      file_name text not null,
+      file_size text not null,
+      file_type text not null,
+      status text not null default 'pending' check (status in ('pending', 'approved', 'rejected')),
+      uploaded_by uuid not null references users(id),
+      approved_by uuid references users(id),
+      created_at timestamptz not null default now(),
+      updated_at timestamptz not null default now()
+    );
+  `);
+  
+  // Create note_status enum if it doesn't exist
+  try {
+    await p.query(`create type note_status as enum ('pending', 'approved', 'rejected');`);
+  } catch (e: any) {
+    // enum already exists, ignore error
+    if (!e.message?.includes('already exists')) {
+      console.warn('Could not create note_status enum:', e.message);
+    }
+  }
+  
   // adds google_id column if it doesn't exist (for existing tables)
   try {
     await p.query(`ALTER TABLE users ADD COLUMN google_id text;`);

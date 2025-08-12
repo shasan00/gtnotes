@@ -20,10 +20,10 @@ const loginSchema = z.object({
   password: z.string().min(8),
 });
 
-function createJwt(userId: string): string {
+function createJwt(userId: string, role: string): string {
   const secret = process.env.JWT_SECRET;
   if (!secret) throw new Error("JWT_SECRET not set");
-  return jwt.sign({ sub: userId }, secret, { expiresIn: "7d" });
+  return jwt.sign({ sub: userId, role }, secret, { expiresIn: "7d" });
 }
 
 router.post("/signup", async (req, res) => {
@@ -43,7 +43,7 @@ router.post("/signup", async (req, res) => {
       [email, hash, firstName, lastName]
     );
     const user = result.rows[0];
-    const token = createJwt(user.id);
+    const token = createJwt(user.id, user.role);
     res.status(201).json({ user, token });
   } catch (err) {
     console.error(err);
@@ -66,7 +66,7 @@ router.post("/login", async (req, res) => {
     const user = result.rows[0];
     const ok = await bcrypt.compare(password, user.password_hash);
     if (!ok) return res.status(401).json({ error: "Invalid credentials" });
-    const token = createJwt(user.id);
+    const token = createJwt(user.id, user.role);
     delete user.password_hash;
     res.json({ user, token });
   } catch (err) {
@@ -92,7 +92,7 @@ router.get(
   async (req: any, res) => {
     // At this point req.user is the user record
     const user = req.user;
-    const token = createJwt(user.id);
+    const token = createJwt(user.id, user.role);
     // Redirect back to frontend with token so the SPA can store it
     const redirectUrl = process.env.GOOGLE_SUCCESS_REDIRECT || "http://localhost:8080/sign-in?token=" + encodeURIComponent(token);
     if (redirectUrl.includes("?")) {
