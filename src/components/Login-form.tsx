@@ -19,12 +19,16 @@ export function LoginForm({
     window.location.href = "/api/auth/google/login";
   };
 
+  const handleMicrosoftClick = () => {
+    window.location.href = "/api/auth/microsoft/login";
+  };
+
   return (
     <div className={cn("flex flex-col gap-6", className)} {...props}>
       <Card>
         <CardHeader className="text-center">
           <CardTitle className="text-xl">Welcome!</CardTitle>
-          <CardDescription>Sign in with Google</CardDescription>
+          <CardDescription>Sign in with Google or Microsoft</CardDescription>
         </CardHeader>
         <CardContent>
           <form onSubmit={(e) => e.preventDefault()}>
@@ -32,7 +36,7 @@ export function LoginForm({
               {/* Divider removed since only Google is supported */}
               <div className="grid gap-6">
                 <div className="text-sm text-muted-foreground text-center">
-                  Sign in is only available via Google.
+                  Sign in is available via Google or Microsoft.
                 </div>
                 <button
                   type="button"
@@ -52,6 +56,25 @@ export function LoginForm({
                     </div>
                     <span className="gsi-material-button-contents">Continue with Google</span>
                     <span style={{ display: 'none' }}>Continue with Google</span>
+                  </div>
+                </button>
+                <button
+                  type="button"
+                  className="gsi-material-button w-full bg-gt-gold text-gt-gold-foreground hover:bg-yellow-600"
+                  onClick={handleMicrosoftClick}
+                >
+                  <div className="gsi-material-button-state"></div>
+                  <div className="gsi-material-button-content-wrapper">
+                    <div className="gsi-material-button-icon">
+                      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" style={{ display: 'block' }}>
+                        <rect width="10" height="10" x="2" y="2" fill="#F25022" />
+                        <rect width="10" height="10" x="12" y="2" fill="#7FBA00" />
+                        <rect width="10" height="10" x="2" y="12" fill="#00A4EF" />
+                        <rect width="10" height="10" x="12" y="12" fill="#FFB900" />
+                      </svg>
+                    </div>
+                    <span className="gsi-material-button-contents">Continue with Microsoft</span>
+                    <span style={{ display: 'none' }}>Continue with Microsoft</span>
                   </div>
                 </button>
               </div>

@@ -55,12 +55,16 @@ export default function SignupForm({
     window.location.href = "/api/auth/google/signup";
   };
 
+  const handleMicrosoftClick = () => {
+    window.location.href = "/api/auth/microsoft/signup";
+  };
+
   return (
     <div className={cn("flex flex-col gap-6 w-full", className)} {...props}>
       <Card>
         <CardHeader className="text-center">
           <CardTitle className="text-xl">Create an account</CardTitle>
-          <CardDescription>Sign up with Google</CardDescription>
+          <CardDescription>Sign up with Google or Microsoft</CardDescription>
         </CardHeader>
         <CardContent>
           <form onSubmit={handleSubmit}>
@@ -75,13 +79,25 @@ export default function SignupForm({
                   </svg>
                   Sign in with Google
                 </Button>
+                <Button variant="outline" className="w-full" onClick={handleMicrosoftClick}>
+                  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
+                    <rect width="10" height="10" x="2" y="2" fill="#F25022" />
+                    <rect width="10" height="10" x="12" y="2" fill="#7FBA00" />
+                    <rect width="10" height="10" x="2" y="12" fill="#00A4EF" />
+                    <rect width="10" height="10" x="12" y="12" fill="#FFB900" />
+                  </svg>
+                  Sign in with Microsoft
+                </Button>
               </div>
               <div className="grid gap-6">
                 <div className="text-sm text-muted-foreground text-center">
-                  Account creation is only available via Google.
+                  Account creation is available via Google or Microsoft.
                 </div>
                 <Button disabled={isLoading} type="button" className="w-full bg-gt-gold hover:bg-yellow-600" onClick={handleGoogleClick}>
                   Continue with Google
+                </Button>
+                <Button disabled={isLoading} type="button" className="w-full bg-gt-gold hover:bg-yellow-600" onClick={handleMicrosoftClick}>
+                  Continue with Microsoft
                 </Button>
                 {error && <p className="text-red-600 text-sm">{error}</p>}
               </div>
