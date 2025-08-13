@@ -1,10 +1,9 @@
 import passport from "passport";
 import { getPool } from "../db/pool";
+import { Strategy as MicrosoftStrategy } from "passport-microsoft";
 
 
-
-const MicrosoftPassport = require("passport-microsoft");
-const MicrosoftStrategy = MicrosoftPassport.Strategy as any;
+const MicrosoftPassport = require("passport-microsoft"); // idk if needed
 
 type VerifyCallback = (error: any, user?: any) => void;
 
