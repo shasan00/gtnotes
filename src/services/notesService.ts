@@ -175,4 +175,30 @@ export class NotesService {
       return null;
     }
   }
+
+  static async deleteNote(noteId: string): Promise<boolean> {
+    try {
+      const token = localStorage.getItem('auth_token');
+      if (!token) throw new Error('Authentication required');
+
+      const response = await fetch(`/api/notes/${noteId}`, {
+        method: 'DELETE',
+        headers: {
+          'Authorization': `Bearer ${token}`,
+          'Content-Type': 'application/json',
+        },
+        credentials: 'include',
+      });
+
+      if (!response.ok) {
+        const errorData = await response.json().catch(() => ({}));
+        throw new Error(errorData.error || 'Failed to delete note');
+      }
+
+      return true;
+    } catch (error) {
+      console.error('Error deleting note:', error);
+      throw error; // Re-throw the error to be handled by the component
+    }
+  }
 }
