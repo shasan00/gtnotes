@@ -65,7 +65,7 @@ const Header = () => {
                 className="w-full pl-10 pr-8 py-2 rounded-md border border-input focus:ring-gt-gold focus:border-gt-gold bg-background"
               />
               <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 text-muted-foreground" />
-              {inputValue && (
+              {inputValue ? (
                 <button
                   onClick={handleClearSearch}
                   className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground"
@@ -73,10 +73,11 @@ const Header = () => {
                 >
                   <X className="h-4 w-4" />
                 </button>
+              ) : (
+                <div className="absolute right-2 top-1/2 -translate-y-1/2 pointer-events-none flex items-center border border-muted-foreground/20 rounded px-1.5 py-0.5 text-xs text-muted-foreground">
+                  /
+                </div>
               )}
-              <div className="absolute right-2 top-1/2 -translate-y-1/2 pointer-events-none flex items-center border border-muted-foreground/20 rounded px-1.5 py-0.5 text-xs text-muted-foreground">
-                /
-              </div>
             </div>
           </div>
           
