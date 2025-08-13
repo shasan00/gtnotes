@@ -1,10 +1,11 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { SlidersHorizontal, X, ChevronDown, ChevronUp, Search } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { useSearchFilter } from "@/context/SearchFilterContext";
 
 // Mock data for filters
 const COURSES = ["CS 1301", "CS 1331", "CS 1332", "MATH 1551", "MATH 1552", "PHYS 2211"];
@@ -93,10 +94,17 @@ const FilterSection: React.FC<FilterSectionProps> = ({
 };
 
 const Sidebar = () => {
-  const [selectedCourses, setSelectedCourses] = useState<string[]>([]);
-  const [selectedProfessors, setSelectedProfessors] = useState<string[]>([]);
-  const [selectedSemesters, setSelectedSemesters] = useState<string[]>([]);
-  const [selectedTypes, setSelectedTypes] = useState<string[]>([]);
+  const {
+    selectedCourses,
+    setSelectedCourses,
+    selectedProfessors,
+    setSelectedProfessors,
+    selectedSemesters,
+    setSelectedSemesters,
+    selectedTypes,
+    setSelectedTypes,
+    clearAllFilters,
+  } = useSearchFilter();
   
   const [searchTerm, setSearchTerm] = useState({
     courses: "",
@@ -104,6 +112,21 @@ const Sidebar = () => {
     semesters: "",
     types: "",
   });
+  
+  // Clear local search terms when filters are cleared
+  useEffect(() => {
+    if (selectedCourses.length === 0 && 
+        selectedProfessors.length === 0 && 
+        selectedSemesters.length === 0 && 
+        selectedTypes.length === 0) {
+      setSearchTerm({
+        courses: "",
+        professors: "",
+        semesters: "",
+        types: "",
+      });
+    }
+  }, [selectedCourses, selectedProfessors, selectedSemesters, selectedTypes]);
 
   const toggleCourse = (course: string) => {
     setSelectedCourses(prev =>
@@ -137,18 +160,7 @@ const Sidebar = () => {
     );
   };
 
-  const clearAllFilters = () => {
-    setSelectedCourses([]);
-    setSelectedProfessors([]);
-    setSelectedSemesters([]);
-    setSelectedTypes([]);
-    setSearchTerm({
-      courses: "",
-      professors: "",
-      semesters: "",
-      types: "",
-    });
-  };
+  // clearAllFilters is now provided by the context
 
   const activeFilterCount = [
     ...selectedCourses,

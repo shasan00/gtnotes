@@ -30,17 +30,26 @@ const NoteCard: React.FC<NoteCardProps> = ({ id, title, description, course, pro
     rejected: 'text-red-600',
   };
 
+  const formatSemester = (semester: string): string => {
+    if (!semester) return '';
+    const [season, year] = semester.split('-');
+    if (!season || !year) return semester; // Return as is if format is unexpected
+    
+    // Capitalize first letter of season and add space before year
+    return `${season.charAt(0).toUpperCase() + season.slice(1)} ${year}`;
+  };
+
   return (
     <Card className="w-full max-w-sm hover:shadow-lg transition-shadow duration-200 flex flex-col">
       <CardHeader>
-        <CardTitle className="text-lg font-semibold text-primary h-14">{title}</CardTitle>
-        <CardDescription className="text-sm text-muted-foreground line-clamp-2 h-10">{description}</CardDescription>
+        <CardTitle className="text-lg font-semibold text-primary h-12"><Link to={`/notes/${id}`}>{title}</Link></CardTitle>
+        {/* <CardDescription className="text-sm text-muted-foreground line-clamp-2 h-10">{description}</CardDescription> */}
       </CardHeader>
       <CardContent className="space-y-2 text-sm flex-grow">
-        <div className={`flex items-center ${statusColor[status]}`}>
+        {/* <div className={`flex items-center ${statusColor[status]}`}>
           {statusIcon[status]}
           <span className="font-medium capitalize">{status}</span>
-        </div>
+        </div> */}
         <div className="flex items-center text-gray-700 dark:text-gray-300">
           <BookOpen className="h-4 w-4 mr-2 text-muted-foreground" />
           <span>{course}</span>
@@ -51,7 +60,7 @@ const NoteCard: React.FC<NoteCardProps> = ({ id, title, description, course, pro
         </div>
         <div className="flex items-center text-gray-700 dark:text-gray-300">
           <CalendarDays className="h-4 w-4 mr-2 text-muted-foreground" />
-          <span>{semester}</span>
+          <span>{formatSemester(semester)}</span>
         </div>
         <div className="flex items-center text-gray-700 dark:text-gray-300">
           <FileText className="h-4 w-4 mr-2 text-muted-foreground" />
