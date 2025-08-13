@@ -8,11 +8,12 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Textarea } from "@/components/ui/textarea";
 import { Upload, FileText, X, CheckCircle2 } from "lucide-react";
 import Header from "@/components/Header";
+import { useToast } from "@/components/ui/use-toast";
 
 export default function UploadPage() {
   const [file, setFile] = useState<File | null>(null);
   const [isUploading, setIsUploading] = useState(false);
-  const [isSuccess, setIsSuccess] = useState(false);
+  const { toast } = useToast();
   const [formData, setFormData] = useState({
     title: "",
     course: "",
@@ -80,7 +81,12 @@ export default function UploadPage() {
         throw new Error(errorData.error || 'Upload failed');
       }
 
-      setIsSuccess(true);
+      // Show success toast
+      toast({
+        title: "Success!",
+        description: "Your notes have been uploaded successfully.",
+        variant: "default",
+      });
       
       // Trigger a custom event to notify other components that notes have been updated
       window.dispatchEvent(new CustomEvent('notesUpdated'));
@@ -238,9 +244,9 @@ export default function UploadPage() {
               </div>
             </CardContent>
             <CardFooter className="flex justify-end">
-              <Button 
-                type="submit" 
-                disabled={!file || isUploading}
+              <Button
+                type="submit"
+                disabled={isUploading || !file}
                 className="bg-gt-gold hover:bg-gt-gold/90 text-white"
               >
                 {isUploading ? (
@@ -250,11 +256,6 @@ export default function UploadPage() {
                       <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
                     </svg>
                     Uploading...
-                  </>
-                ) : isSuccess ? (
-                  <>
-                    <CheckCircle2 className="h-4 w-4 mr-2" />
-                    Upload Successful!
                   </>
                 ) : (
                   'Upload Notes'
