@@ -13,8 +13,6 @@ import {
   validateSemester, 
   validateCourse, 
   validateProfessorName, 
-  generateSemesterOptions,
-  semesterValueToLabel,
   type ValidationResult 
 } from "@/utils/validation";
 
@@ -36,7 +34,7 @@ export default function UploadPage() {
     semester: "",
   });
 
-  const [semesterOptions] = useState(() => generateSemesterOptions());
+
   const [formatTimers, setFormatTimers] = useState<{[key: string]: NodeJS.Timeout}>({});
 
   // Cleanup timers on unmount
@@ -124,6 +122,30 @@ export default function UploadPage() {
           setFormatTimers(prev => ({ ...prev, professor: timer }));
         }
       }
+    } else if (name === 'semester') {
+      const validation = validateSemester(value);
+      setValidationErrors(prev => ({
+        ...prev,
+        semester: validation.isValid ? "" : validation.message || ""
+      }));
+      
+      // autoformats if valid - only if user stopped typing for 1.5 seconds
+      if (validation.isValid && validation.formatted && validation.formatted !== value) {
+        const timer = setTimeout(() => {
+          // only formats if the value hasn't changed
+          setFormData(current => {
+            if (current.semester === value) {
+              return {
+                ...current,
+                semester: validation.formatted!
+              };
+            }
+            return current;
+          });
+        }, 1500); // delay to ensure user is done typing
+        
+        setFormatTimers(prev => ({ ...prev, semester: timer }));
+      }
     }
   };
 
@@ -156,6 +178,14 @@ export default function UploadPage() {
           professor: validation.formatted!
         }));
       }
+    } else if (name === 'semester') {
+      const validation = validateSemester(value);
+      if (validation.isValid && validation.formatted && validation.formatted !== value) {
+        setFormData(prev => ({
+          ...prev,
+          semester: validation.formatted!
+        }));
+      }
     }
   };
 
@@ -181,7 +211,7 @@ export default function UploadPage() {
     // Validate all fields before submission
     const courseValidation = validateCourse(formData.course);
     const professorValidation = validateProfessorName(formData.professor);
-    const semesterValidation = validateSemester(semesterValueToLabel(formData.semester));
+    const semesterValidation = validateSemester(formData.semester);
     
     const errors = {
       course: courseValidation.isValid ? "" : courseValidation.message || "",
@@ -209,7 +239,7 @@ export default function UploadPage() {
       formDataToSend.append('title', formData.title);
       formDataToSend.append('course', courseValidation.formatted || formData.course);
       formDataToSend.append('professor', professorValidation.formatted || formData.professor);
-      formDataToSend.append('semester', semesterValueToLabel(formData.semester));
+      formDataToSend.append('semester', formData.semester);
       formDataToSend.append('description', formData.description);
 
       const token = localStorage.getItem('auth_token');
@@ -337,7 +367,7 @@ export default function UploadPage() {
                   name="title"
                   value={formData.title}
                   onChange={handleInputChange}
-                  placeholder="e.g., Introduction to Object-Oriented Programming"
+                  placeholder="e.g., Lecture 4 Notes"
                   required
                 />
               </div>
@@ -391,22 +421,16 @@ export default function UploadPage() {
 
               <div className="space-y-2">
                 <Label htmlFor="semester" className="text-gt-gold">Semester</Label>
-                <Select 
-                  value={formData.semester} 
-                  onValueChange={(value) => handleSelectChange(value, 'semester')}
+                <Input
+                  id="semester"
+                  name="semester"
+                  value={formData.semester}
+                  onChange={handleInputChange}
+                  onBlur={handleInputBlur}
+                  placeholder="e.g., Fall 2025"
+                  className={validationErrors.semester ? "border-red-500" : ""}
                   required
-                >
-                  <SelectTrigger className={validationErrors.semester ? "border-red-500" : ""}>
-                    <SelectValue placeholder="Select semester" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    {semesterOptions.map((option) => (
-                      <SelectItem key={option.value} value={option.value}>
-                        {option.label}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
+                />
                 {validationErrors.semester && (
                   <div className="flex items-center gap-1 text-sm text-red-500">
                     <AlertCircle className="h-4 w-4" />
@@ -414,7 +438,7 @@ export default function UploadPage() {
                   </div>
                 )}
                 <p className="text-xs text-muted-foreground">
-                  Select the semester when this course was/will be taken
+                  Format: Term Year (e.g., "Fall 2025", "Summer 2021")
                 </p>
               </div>
 
