@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useMemo } from "react";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Button } from "@/components/ui/button";
@@ -7,12 +7,11 @@ import { SlidersHorizontal, X, ChevronDown, ChevronUp, Search } from "lucide-rea
 import { cn } from "@/lib/utils";
 import { useSearchFilter } from "@/context/SearchFilterContext";
 import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger } from "@/components/ui/sheet";
+import { useNotes } from "@/hooks/useNotes";
+import { semesterValueToLabel } from "@/utils/validation";
 
-// Mock data for filters
-const COURSES = ["CS 1301", "CS 1331", "CS 1332", "MATH 1551", "MATH 1552", "PHYS 2211"];
-const PROFESSORS = ["Thad Starner", "David Joyner", "Megan Babcock", "Sal Barone"];
-const SEMESTERS = ["Spring 2024", "Fall 2023", "Summer 2023", "Spring 2023"];
-const TYPES = ["Lecture Notes", "Study Guides", "Practice Exams", "Homework"];
+// Fallback data for filters (used when no notes are available)
+const FALLBACK_TYPES = ["Lecture Notes", "Study Guides", "Practice Exams", "Homework"];
 
 interface FilterSectionProps {
   title: string;
@@ -106,6 +105,40 @@ const Sidebar = () => {
     setSelectedTypes,
     clearAllFilters,
   } = useSearchFilter();
+  
+  const { notes } = useNotes();
+  
+  // Get unique values for filters based on current notes
+  const { courses, professors, semesters, types } = useMemo(() => {
+    const unique = {
+      courses: new Set<string>(),
+      professors: new Set<string>(),
+      semesters: new Set<string>(),
+      types: new Set<string>(),
+    };
+    
+    notes?.forEach(note => {
+      if (note.course) unique.courses.add(note.course);
+      if (note.professor) unique.professors.add(note.professor);
+      if (note.semester) unique.semesters.add(note.semester);
+      if (note.type) unique.types.add(note.type);
+    });
+    
+    const semesterList = Array.from(unique.semesters)
+      .map(semester => semesterValueToLabel(semester)) // Convert 'spring-2025' to 'Spring 2025'
+      .sort()
+      .reverse() // Most recent first
+      .slice(0, 4); // Limit to exactly 4 items
+    
+    console.log('Semester filter items:', semesterList.length, semesterList); // Debug log
+    
+    return {
+      courses: Array.from(unique.courses).sort().slice(0, 4), // Limit to 4 items
+      professors: Array.from(unique.professors).sort().slice(0, 4), // Limit to 4 items
+      semesters: semesterList,
+      types: Array.from(unique.types).length > 0 ? Array.from(unique.types).sort().slice(0, 4) : FALLBACK_TYPES,
+    };
+  }, [notes]);
   
   const [searchTerm, setSearchTerm] = useState({
     courses: "",
@@ -221,7 +254,7 @@ const Sidebar = () => {
         <div className="space-y-6">
           <FilterSection
             title="Courses"
-            items={COURSES}
+            items={courses}
             selectedItems={selectedCourses}
             onToggle={toggleCourse}
             searchTerm={searchTerm.courses}
@@ -231,7 +264,7 @@ const Sidebar = () => {
 
           <FilterSection
             title="Professors"
-            items={PROFESSORS}
+            items={professors}
             selectedItems={selectedProfessors}
             onToggle={toggleProfessor}
             searchTerm={searchTerm.professors}
@@ -241,7 +274,7 @@ const Sidebar = () => {
 
           <FilterSection
             title="Semesters"
-            items={SEMESTERS}
+            items={semesters}
             selectedItems={selectedSemesters}
             onToggle={toggleSemester}
             searchTerm={searchTerm.semesters}
@@ -249,15 +282,17 @@ const Sidebar = () => {
             placeholder="Search semesters..."
           />
 
+          {/* Document Types filter - commented out since it's not used in note filtering
           <FilterSection
             title="Document Types"
-            items={TYPES}
+            items={types}
             selectedItems={selectedTypes}
             onToggle={toggleType}
             searchTerm={searchTerm.types}
             onSearchChange={(value) => setSearchTerm(prev => ({ ...prev, types: value }))}
             placeholder="Search types..."
           />
+          */}
         </div>
       </aside>
 
@@ -312,7 +347,7 @@ const Sidebar = () => {
 
               <FilterSection
                 title="Courses"
-                items={COURSES}
+                items={courses}
                 selectedItems={selectedCourses}
                 onToggle={toggleCourse}
                 searchTerm={searchTerm.courses}
@@ -322,7 +357,7 @@ const Sidebar = () => {
 
               <FilterSection
                 title="Professors"
-                items={PROFESSORS}
+                items={professors}
                 selectedItems={selectedProfessors}
                 onToggle={toggleProfessor}
                 searchTerm={searchTerm.professors}
@@ -332,7 +367,7 @@ const Sidebar = () => {
 
               <FilterSection
                 title="Semesters"
-                items={SEMESTERS}
+                items={semesters}
                 selectedItems={selectedSemesters}
                 onToggle={toggleSemester}
                 searchTerm={searchTerm.semesters}
@@ -340,15 +375,16 @@ const Sidebar = () => {
                 placeholder="Search semesters..."
               />
 
+              {/* Document Types filter - commented out since it's not used in note filtering
               <FilterSection
                 title="Document Types"
-                items={TYPES}
+                items={types}
                 selectedItems={selectedTypes}
                 onToggle={toggleType}
                 searchTerm={searchTerm.types}
-                onSearchChange={(value) => setSearchTerm(prev => ({ ...prev, types: value }))}
                 placeholder="Search types..."
               />
+              */}
             </div>
           </SheetContent>
         </Sheet>
