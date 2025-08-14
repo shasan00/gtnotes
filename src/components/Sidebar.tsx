@@ -6,6 +6,7 @@ import { Badge } from "@/components/ui/badge";
 import { SlidersHorizontal, X, ChevronDown, ChevronUp, Search } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useSearchFilter } from "@/context/SearchFilterContext";
+import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger } from "@/components/ui/sheet";
 
 // Mock data for filters
 const COURSES = ["CS 1301", "CS 1331", "CS 1332", "MATH 1551", "MATH 1552", "PHYS 2211"];
@@ -170,93 +171,189 @@ const Sidebar = () => {
   ].length;
 
   return (
-    <aside className="w-72 border-r bg-card p-4 overflow-y-auto">
-      <div className="flex items-center justify-between mb-4">
-        <h2 className="text-xl font-semibold flex items-center gap-2 text-gt-gold">
-          <SlidersHorizontal className="h-5 w-5" />
-          Filters
-        </h2>
-        {activeFilterCount > 0 && (
-          <Button
-            variant="ghost"
-            size="sm"
-            onClick={clearAllFilters}
-            className="h-8 px-2 text-xs text-muted-foreground hover:text-foreground"
-          >
-            Clear all
-          </Button>
-        )}
-      </div>
-
-      {activeFilterCount > 0 && (
-        <div className="flex flex-wrap gap-2 mb-4">
-          {[...selectedCourses, ...selectedProfessors, ...selectedSemesters, ...selectedTypes].map(
-            (filter) => (
-              <Badge
-                key={filter}
-                variant="secondary"
-                className="flex items-center gap-1 bg-gt-gold/10 text-foreground hover:bg-gt-gold/20"
-              >
-                {filter}
-                <button
-                  onClick={() => {
-                    if (selectedCourses.includes(filter)) toggleCourse(filter);
-                    if (selectedProfessors.includes(filter)) toggleProfessor(filter);
-                    if (selectedSemesters.includes(filter)) toggleSemester(filter);
-                    if (selectedTypes.includes(filter)) toggleType(filter);
-                  }}
-                  className="ml-1 rounded-full hover:bg-gt-gold/20 p-0.5"
-                >
-                  <X className="h-3 w-3" />
-                </button>
-              </Badge>
-            )
+    <>
+      {/* Desktop sidebar */}
+      <aside className="w-72 border-r bg-card p-4 overflow-y-auto hidden md:block">
+        <div className="flex items-center justify-between mb-4">
+          <h2 className="text-xl font-semibold flex items-center gap-2 text-gt-gold">
+            <SlidersHorizontal className="h-5 w-5" />
+            Filters
+          </h2>
+          {activeFilterCount > 0 && (
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={clearAllFilters}
+              className="h-8 px-2 text-xs text-muted-foreground hover:text-foreground"
+            >
+              Clear all
+            </Button>
           )}
         </div>
-      )}
 
-      <div className="space-y-6">
-        <FilterSection
-          title="Courses"
-          items={COURSES}
-          selectedItems={selectedCourses}
-          onToggle={toggleCourse}
-          searchTerm={searchTerm.courses}
-          onSearchChange={(value) => setSearchTerm(prev => ({ ...prev, courses: value }))}
-          placeholder="Search courses..."
-        />
+        {activeFilterCount > 0 && (
+          <div className="flex flex-wrap gap-2 mb-4">
+            {[...selectedCourses, ...selectedProfessors, ...selectedSemesters, ...selectedTypes].map(
+              (filter) => (
+                <Badge
+                  key={filter}
+                  variant="secondary"
+                  className="flex items-center gap-1 bg-gt-gold/10 text-foreground hover:bg-gt-gold/20"
+                >
+                  {filter}
+                  <button
+                    onClick={() => {
+                      if (selectedCourses.includes(filter)) toggleCourse(filter);
+                      if (selectedProfessors.includes(filter)) toggleProfessor(filter);
+                      if (selectedSemesters.includes(filter)) toggleSemester(filter);
+                      if (selectedTypes.includes(filter)) toggleType(filter);
+                    }}
+                    className="ml-1 rounded-full hover:bg-gt-gold/20 p-0.5"
+                  >
+                    <X className="h-3 w-3" />
+                  </button>
+                </Badge>
+              )
+            )}
+          </div>
+        )}
 
-        <FilterSection
-          title="Professors"
-          items={PROFESSORS}
-          selectedItems={selectedProfessors}
-          onToggle={toggleProfessor}
-          searchTerm={searchTerm.professors}
-          onSearchChange={(value) => setSearchTerm(prev => ({ ...prev, professors: value }))}
-          placeholder="Search professors..."
-        />
+        <div className="space-y-6">
+          <FilterSection
+            title="Courses"
+            items={COURSES}
+            selectedItems={selectedCourses}
+            onToggle={toggleCourse}
+            searchTerm={searchTerm.courses}
+            onSearchChange={(value) => setSearchTerm(prev => ({ ...prev, courses: value }))}
+            placeholder="Search courses..."
+          />
 
-        <FilterSection
-          title="Semesters"
-          items={SEMESTERS}
-          selectedItems={selectedSemesters}
-          onToggle={toggleSemester}
-          searchTerm={searchTerm.semesters}
-          onSearchChange={(value) => setSearchTerm(prev => ({ ...prev, semesters: value }))}
-          placeholder="Search semesters..."
-        />
+          <FilterSection
+            title="Professors"
+            items={PROFESSORS}
+            selectedItems={selectedProfessors}
+            onToggle={toggleProfessor}
+            searchTerm={searchTerm.professors}
+            onSearchChange={(value) => setSearchTerm(prev => ({ ...prev, professors: value }))}
+            placeholder="Search professors..."
+          />
 
-        <FilterSection
-          title="Document Types"
-          items={TYPES}
-          selectedItems={selectedTypes}
-          onToggle={toggleType}
-          searchTerm={searchTerm.types}
-          onSearchChange={(value) => setSearchTerm(prev => ({ ...prev, types: value }))}
-          placeholder="Search types..."
-        />
+          <FilterSection
+            title="Semesters"
+            items={SEMESTERS}
+            selectedItems={selectedSemesters}
+            onToggle={toggleSemester}
+            searchTerm={searchTerm.semesters}
+            onSearchChange={(value) => setSearchTerm(prev => ({ ...prev, semesters: value }))}
+            placeholder="Search semesters..."
+          />
+
+          <FilterSection
+            title="Document Types"
+            items={TYPES}
+            selectedItems={selectedTypes}
+            onToggle={toggleType}
+            searchTerm={searchTerm.types}
+            onSearchChange={(value) => setSearchTerm(prev => ({ ...prev, types: value }))}
+            placeholder="Search types..."
+          />
+        </div>
+      </aside>
+
+      {/* Mobile filter trigger + sheet (rendered in flow; hidden on md+) */}
+      <div className="md:hidden px-4 mb-3">
+        <Sheet>
+          <SheetTrigger asChild>
+            <Button variant="outline" className="w-full justify-center">
+              <SlidersHorizontal className="h-4 w-4 mr-2" />
+              Filters{activeFilterCount ? ` (${activeFilterCount})` : ""}
+            </Button>
+          </SheetTrigger>
+          <SheetContent side="left" className="w-full sm:max-w-sm">
+            <SheetHeader>
+              <SheetTitle>Filters</SheetTitle>
+            </SheetHeader>
+            <div className="mt-4 space-y-6">
+              {activeFilterCount > 0 && (
+                <div className="flex flex-wrap gap-2 mb-2">
+                  {[...selectedCourses, ...selectedProfessors, ...selectedSemesters, ...selectedTypes].map(
+                    (filter) => (
+                      <Badge
+                        key={filter}
+                        variant="secondary"
+                        className="flex items-center gap-1 bg-gt-gold/10 text-foreground hover:bg-gt-gold/20"
+                      >
+                        {filter}
+                        <button
+                          onClick={() => {
+                            if (selectedCourses.includes(filter)) toggleCourse(filter);
+                            if (selectedProfessors.includes(filter)) toggleProfessor(filter);
+                            if (selectedSemesters.includes(filter)) toggleSemester(filter);
+                            if (selectedTypes.includes(filter)) toggleType(filter);
+                          }}
+                          className="ml-1 rounded-full hover:bg-gt-gold/20 p-0.5"
+                        >
+                          <X className="h-3 w-3" />
+                        </button>
+                      </Badge>
+                    )
+                  )}
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    onClick={clearAllFilters}
+                    className="h-8 px-2 text-xs text-muted-foreground hover:text-foreground"
+                  >
+                    Clear all
+                  </Button>
+                </div>
+              )}
+
+              <FilterSection
+                title="Courses"
+                items={COURSES}
+                selectedItems={selectedCourses}
+                onToggle={toggleCourse}
+                searchTerm={searchTerm.courses}
+                onSearchChange={(value) => setSearchTerm(prev => ({ ...prev, courses: value }))}
+                placeholder="Search courses..."
+              />
+
+              <FilterSection
+                title="Professors"
+                items={PROFESSORS}
+                selectedItems={selectedProfessors}
+                onToggle={toggleProfessor}
+                searchTerm={searchTerm.professors}
+                onSearchChange={(value) => setSearchTerm(prev => ({ ...prev, professors: value }))}
+                placeholder="Search professors..."
+              />
+
+              <FilterSection
+                title="Semesters"
+                items={SEMESTERS}
+                selectedItems={selectedSemesters}
+                onToggle={toggleSemester}
+                searchTerm={searchTerm.semesters}
+                onSearchChange={(value) => setSearchTerm(prev => ({ ...prev, semesters: value }))}
+                placeholder="Search semesters..."
+              />
+
+              <FilterSection
+                title="Document Types"
+                items={TYPES}
+                selectedItems={selectedTypes}
+                onToggle={toggleType}
+                searchTerm={searchTerm.types}
+                onSearchChange={(value) => setSearchTerm(prev => ({ ...prev, types: value }))}
+                placeholder="Search types..."
+              />
+            </div>
+          </SheetContent>
+        </Sheet>
       </div>
-    </aside>
+    </>
   );
 };
 

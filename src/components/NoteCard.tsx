@@ -40,7 +40,7 @@ const NoteCard: React.FC<NoteCardProps> = ({ id, title, description, course, pro
   };
 
   return (
-    <Card className="w-full max-w-sm hover:shadow-lg transition-shadow duration-200 flex flex-col">
+    <Card className="w-full hover:shadow-lg transition-shadow duration-200 flex flex-col">
       <CardHeader>
         <CardTitle className="text-lg font-semibold text-primary h-12"><Link to={`/notes/${id}`}>{title}</Link></CardTitle>
         {/* <CardDescription className="text-sm text-muted-foreground line-clamp-2 h-10">{description}</CardDescription> */}

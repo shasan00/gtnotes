@@ -26,6 +26,7 @@ export async function initDb(): Promise<void> {
       email text not null unique,
       password_hash text,
       google_id text,
+      microsoft_id text,
       first_name text,
       last_name text,
       role text not null default 'user',
@@ -78,6 +79,21 @@ export async function initDb(): Promise<void> {
   await p
     .query(
       `create unique index if not exists idx_users_google_id on users(google_id) where google_id is not null;`
+    )
+    .catch(() => {});
+  // adds microsoft_id column if it doesn't exist (for existing tables)
+  try {
+    await p.query(`ALTER TABLE users ADD COLUMN microsoft_id text;`);
+  } catch (e: any) {
+    // column already exists, ignore error
+    if (!e.message?.includes('already exists')) {
+      console.warn('Could not add microsoft_id column:', e.message);
+    }
+  }
+  // ensures partial unique index for microsoft_id when present
+  await p
+    .query(
+      `create unique index if not exists idx_users_microsoft_id on users(microsoft_id) where microsoft_id is not null;`
     )
     .catch(() => {});
   try {

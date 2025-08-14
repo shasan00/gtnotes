@@ -46,42 +46,17 @@ export default function SignupForm({
     }
   }
 
+  // Traditional signup removed; only Google OAuth
   async function handleSubmit(event: React.FormEvent<HTMLFormElement>) {
     event.preventDefault();
-    if (password !== confirmPassword) {
-      setError("Passwords do not match");
-      return;
-    }
-    setIsLoading(true);
-    setError("");
-    try {
-      const res = await fetch("/api/auth/signup", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          email,
-          password,
-          firstName,
-          lastName,
-        }),
-      });
-      if (!res.ok) {
-        const msg = (await res.json()).error || "Signup failed";
-        setError(msg);
-        return;
-      }
-      const data = await res.json();
-      localStorage.setItem("auth_token", data.token);
-      window.location.href = "/";
-    } catch (e) {
-      setError("Network error");
-    } finally {
-      setIsLoading(false);
-    }
   }
 
   const handleGoogleClick = () => {
     window.location.href = "/api/auth/google/signup";
+  };
+
+  const handleMicrosoftClick = () => {
+    window.location.href = "/api/auth/microsoft/signup";
   };
 
   return (
@@ -89,9 +64,7 @@ export default function SignupForm({
       <Card>
         <CardHeader className="text-center">
           <CardTitle className="text-xl">Create an account</CardTitle>
-          <CardDescription>
-            Login with your Apple or Google account
-          </CardDescription>
+          <CardDescription>Sign up with Google or Microsoft</CardDescription>
         </CardHeader>
         <CardContent>
           <form onSubmit={handleSubmit}>
@@ -106,80 +79,25 @@ export default function SignupForm({
                   </svg>
                   Sign in with Google
                 </Button>
-              </div>
-              <div className="after:border-border relative text-center text-sm after:absolute after:inset-0 after:top-1/2 after:z-0 after:flex after:items-center after:border-t">
-                <span className="bg-card text-muted-foreground relative z-10 px-2">
-                  Or continue with
-                </span>
-              </div>
-              <div className="flex space-x-4">
-                <div className="flex-1 space-y-2">
-                  <Label htmlFor="first_name" className="text-sm font-medium text-gray-700">
-                    First Name
-                  </Label>
-                  <div className="relative">
-                    <User className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 h-5 w-5" />
-                      <Input
-                      id="first_name"
-                      name="first_name"
-                      type="text"
-                      placeholder="John"
-                      value={firstName}
-                      onChange={handleChange}
-                      className="pl-10 h-12 border-solid focus:bg-white focus:ring-2 focus:ring-blue-500"
-                      required
-                    />
-                  </div>
-                </div>
-                <div className="flex-1 space-y-2">
-                  <Label htmlFor="last_name" className="text-sm font-medium text-gray-700">
-                    Last Name
-                  </Label>
-                  <div className="relative">
-                    <User className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 h-5 w-5" />
-                      <Input
-                      id="last_name"
-                      name="last_name"
-                      type="text"
-                      placeholder="Doe"
-                      value={lastName}
-                      onChange={handleChange}
-                      className="pl-10 h-12 border-solid focus:ring-2 focus:ring-blue-500"
-                      required
-                    />
-                  </div>
-                </div>
+                <Button variant="outline" className="w-full" onClick={handleMicrosoftClick}>
+                  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
+                    <rect width="10" height="10" x="2" y="2" fill="#F25022" />
+                    <rect width="10" height="10" x="12" y="2" fill="#7FBA00" />
+                    <rect width="10" height="10" x="2" y="12" fill="#00A4EF" />
+                    <rect width="10" height="10" x="12" y="12" fill="#FFB900" />
+                  </svg>
+                  Sign in with Microsoft
+                </Button>
               </div>
               <div className="grid gap-6">
-                <div className="grid gap-3">
-                  <Label htmlFor="email">Email</Label>
-                  <Input
-                    id="email"
-                    name="email"
-                    type="email"
-                    placeholder="m@example.com"
-                    value={email}
-                    onChange={handleChange}
-                    required
-                  />
+                <div className="text-sm text-muted-foreground text-center">
+                  Account creation is available via Google or Microsoft.
                 </div>
-                <div className="grid gap-3">
-                  <div className="flex items-center">
-                    <Label htmlFor="password">Password</Label>
-                    <a
-                      href="#"
-                      className="ml-auto text-sm underline-offset-4 hover:underline"
-                    >
-                      Forgot your password?
-                    </a>
-                  </div>
-                  <Input id="password" name="password" type="password" required placeholder="Password" value={password} onChange={handleChange} />
-
-                  <Label htmlFor="confirmPassword">Confirm Password</Label>
-                  <Input id="confirmPassword" name="confirmPassword" type="password" required placeholder="Password" value={confirmPassword} onChange={handleChange} />
-                </div>
-                <Button disabled={isLoading} type="submit" className="w-full bg-gt-gold hover:bg-yellow-600">
-                  {isLoading ? "Creating account..." : "Create account"}
+                <Button disabled={isLoading} type="button" className="w-full bg-gt-gold hover:bg-yellow-600" onClick={handleGoogleClick}>
+                  Continue with Google
+                </Button>
+                <Button disabled={isLoading} type="button" className="w-full bg-gt-gold hover:bg-yellow-600" onClick={handleMicrosoftClick}>
+                  Continue with Microsoft
                 </Button>
                 {error && <p className="text-red-600 text-sm">{error}</p>}
               </div>

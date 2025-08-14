@@ -8,6 +8,7 @@ import notesRouter from "./routes/notes";
 import passport from "passport";
 import session from "express-session";
 import { configureGoogleStrategy, initializePassport } from "./services/googleStrategy";
+import { configureMicrosoftStrategy } from "./services/microsoftStrategy";
 import { initDb } from "./db/pool";
 
 dotenv.config();
@@ -30,6 +31,7 @@ app.use(
 );
 initializePassport();
 configureGoogleStrategy();
+configureMicrosoftStrategy();
 app.use(passport.initialize());
 app.use(passport.session());
 

@@ -72,12 +72,15 @@ export class NotesService {
       .where(eq(notes.id, noteId))
       .returning();
   }
-
+  
+   /* *********************** TODO REVIEW THIS ****************************** */
   static async rejectNote(noteId: string, adminUserId: string) {
+ 
+
     // gets note from db
     const [note] = await getDb().select().from(notes).where(eq(notes.id, noteId));
     if (!note) {
-      throw new Error('Note not found');
+      throw new Error('Note not found'); // could remove since note will always be found
     }
 
     // deletes from s3

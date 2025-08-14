@@ -4,10 +4,9 @@ import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { ThemeProvider } from "./components/ThemeProvider";
-import { SearchFilterProvider } from "./context/SearchFilterContext";
+import { SearchFilterProvider } from "@/context/SearchFilterContext";
 import Index from "./pages/Index";
 import SignIn from "./pages/SignIn";
-import Register from "./pages/Register";
 import NotFound from "./pages/NotFound";
 import NoteDetail from "./pages/NoteDetail";
 import UploadPage from "./pages/UploadPage";
@@ -27,7 +26,6 @@ const App = () => (
             <Routes>
               <Route path="/" element={<Index />} />
               <Route path="/sign-in" element={<SignIn />} />
-              <Route path="/register" element={<Register />} />
               <Route path="/upload" element={<Protected><UploadPage /></Protected>} />
               <Route path="/profile" element={<Protected><Profile /></Protected>} />
               <Route path="/admin" element={<AdminProtected><Admin /></AdminProtected>} />

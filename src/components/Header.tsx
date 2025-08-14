@@ -44,50 +44,85 @@ const Header = () => {
 
   return (
     <header className="sticky top-0 z-40 w-full border-b bg-card text-foreground shadow-sm">
-      <div className="h-16 px-6">
-        <div className="grid grid-cols-[1fr_min(100%_-_32rem)_1fr] items-center h-full max-w-[2000px] mx-auto">
-          {/* Left section */}
-          <div className="flex items-center justify-start">
-            <Link to="/" className="text-2xl font-bold text-gt-gold hover:text-gt-gold/90 whitespace-nowrap">
-              GT Notes
-            </Link>
+      {/* Desktop (md+) */}
+      <div className="hidden md:grid h-16 px-6 grid-cols-[1fr_minmax(0,48rem)_1fr] items-center max-w-[2000px] mx-auto">
+        {/* Left */}
+        <div className="flex items-center justify-start">
+          <Link to="/" className="text-2xl font-bold text-gt-gold hover:text-gt-gold/90 whitespace-nowrap">
+            GT Notes
+          </Link>
+        </div>
+        {/* Center - search */}
+        <div className="relative w-full max-w-2xl mx-auto px-4">
+          <div className="relative">
+            <Input
+              ref={inputRef}
+              type="text"
+              placeholder="Search notes, professors, classes..."
+              value={inputValue}
+              onChange={handleSearchChange}
+              className="w-full pl-10 pr-8 py-2 rounded-md border border-input focus:ring-gt-gold focus:border-gt-gold bg-background"
+            />
+            <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 text-muted-foreground" />
+            {inputValue ? (
+              <button
+                onClick={handleClearSearch}
+                className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground"
+                aria-label="Clear search"
+              >
+                <X className="h-4 w-4" />
+              </button>
+            ) : (
+              <div className="absolute right-2 top-1/2 -translate-y-1/2 pointer-events-none flex items-center border border-muted-foreground/20 rounded px-1.5 py-0.5 text-xs text-muted-foreground">
+                /
+              </div>
+            )}
           </div>
-          
-          {/* Center section - Search bar */}
-          <div className="relative w-full max-w-2xl mx-auto px-4">
-            <div className="relative">
-              <Input
-                ref={inputRef}
-                type="text"
-                placeholder="Search notes, professors, classes..."
-                value={inputValue}
-                onChange={handleSearchChange}
-                className="w-full pl-10 pr-8 py-2 rounded-md border border-input focus:ring-gt-gold focus:border-gt-gold bg-background"
-              />
-              <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 text-muted-foreground" />
-              {inputValue ? (
-                <button
-                  onClick={handleClearSearch}
-                  className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground"
-                  aria-label="Clear search"
-                >
-                  <X className="h-4 w-4" />
-                </button>
-              ) : (
-                <div className="absolute right-2 top-1/2 -translate-y-1/2 pointer-events-none flex items-center border border-muted-foreground/20 rounded px-1.5 py-0.5 text-xs text-muted-foreground">
-                  /
-                </div>
-              )}
-            </div>
-          </div>
-          
-          {/* Right section */}
-          <div className="flex items-center justify-end space-x-4">
-            <Button asChild variant="ghost" className="text-gt-gold hover:bg-gt-gold/10 hover:text-gt-gold whitespace-nowrap">
+        </div>
+        {/* Right */}
+        <div className="flex items-center justify-end space-x-4">
+          <Button asChild variant="ghost" className="text-gt-gold hover:bg-gt-gold/10 hover:text-gt-gold whitespace-nowrap">
+            <Link to="/upload">Upload</Link>
+          </Button>
+          <ThemeToggle />
+          <AuthButtons />
+        </div>
+      </div>
+
+      {/* Mobile (< md) */}
+      <div className="md:hidden px-4 py-3">
+        <div className="flex items-center justify-between">
+          <Link to="/" className="text-xl font-bold text-gt-gold hover:text-gt-gold/90 whitespace-nowrap">
+            GT Notes
+          </Link>
+          <div className="flex items-center gap-2">
+            <Button asChild size="sm" variant="ghost" className="text-gt-gold hover:bg-gt-gold/10 hover:text-gt-gold">
               <Link to="/upload">Upload</Link>
             </Button>
             <ThemeToggle />
             <AuthButtons />
+          </div>
+        </div>
+        <div className="mt-3">
+          <div className="relative">
+            <Input
+              ref={inputRef}
+              type="text"
+              placeholder="Search notes, professors, classes..."
+              value={inputValue}
+              onChange={handleSearchChange}
+              className="w-full pl-10 pr-8 py-2 rounded-md border border-input focus:ring-gt-gold focus:border-gt-gold bg-background"
+            />
+            <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 text-muted-foreground" />
+            {inputValue ? (
+              <button
+                onClick={handleClearSearch}
+                className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground"
+                aria-label="Clear search"
+              >
+                <X className="h-4 w-4" />
+              </button>
+            ) : null}
           </div>
         </div>
       </div>
