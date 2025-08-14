@@ -6,9 +6,17 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Textarea } from "@/components/ui/textarea";
-import { Upload, FileText, X, CheckCircle2 } from "lucide-react";
+import { Upload, FileText, X, CheckCircle2, AlertCircle } from "lucide-react";
 import Header from "@/components/Header";
 import { useToast } from "@/components/ui/use-toast";
+import { 
+  validateSemester, 
+  validateCourse, 
+  validateProfessorName, 
+  generateSemesterOptions,
+  semesterValueToLabel,
+  type ValidationResult 
+} from "@/utils/validation";
 
 export default function UploadPage() {
   const [file, setFile] = useState<File | null>(null);
@@ -22,6 +30,22 @@ export default function UploadPage() {
     description: "",
   });
 
+  const [validationErrors, setValidationErrors] = useState({
+    course: "",
+    professor: "",
+    semester: "",
+  });
+
+  const [semesterOptions] = useState(() => generateSemesterOptions());
+  const [formatTimers, setFormatTimers] = useState<{[key: string]: NodeJS.Timeout}>({});
+
+  // Cleanup timers on unmount
+  useEffect(() => {
+    return () => {
+      Object.values(formatTimers).forEach(timer => clearTimeout(timer));
+    };
+  }, [formatTimers]);
+
   const { getRootProps, getInputProps, isDragActive } = useDropzone({
     accept: {
       'application/pdf': ['.pdf'],
@@ -34,10 +58,105 @@ export default function UploadPage() {
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
     const { name, value } = e.target;
+    
+    // Update form data
     setFormData(prev => ({
       ...prev,
       [name]: value
     }));
+    
+    // Clear any existing timer for this field
+    if (formatTimers[name]) {
+      clearTimeout(formatTimers[name]);
+    }
+    
+    // Real-time validation
+    if (name === 'course') {
+      const validation = validateCourse(value);
+      setValidationErrors(prev => ({
+        ...prev,
+        course: validation.isValid ? "" : validation.message || ""
+      }));
+      
+      // Auto-format if valid - only if user stopped typing for 1.5 seconds and field looks complete
+      if (validation.isValid && validation.formatted && validation.formatted !== value) {
+        const timer = setTimeout(() => {
+          // Only format if the value hasn't changed and appears to be a complete entry
+          setFormData(current => {
+            if (current.course === value) {
+              return {
+                ...current,
+                course: validation.formatted!
+              };
+            }
+            return current;
+          });
+        }, 1500); // Longer delay to ensure user is done typing
+        
+        setFormatTimers(prev => ({ ...prev, course: timer }));
+      }
+    } else if (name === 'professor') {
+      const validation = validateProfessorName(value);
+      setValidationErrors(prev => ({
+        ...prev,
+        professor: validation.isValid ? "" : validation.message || ""
+      }));
+      
+      // Only auto-format professor names when they appear complete (more than just first name)
+      // and user has stopped typing for a longer period
+      if (validation.isValid && validation.formatted && validation.formatted !== value) {
+        // Check if this looks like a complete name (has at least 2 words)
+        const wordCount = value.trim().split(/\s+/).length;
+        if (wordCount >= 2) {
+          const timer = setTimeout(() => {
+            // Double-check the value hasn't changed before formatting
+            setFormData(current => {
+              if (current.professor === value) {
+                return {
+                  ...current,
+                  professor: validation.formatted!
+                };
+              }
+              return current;
+            });
+          }, 2000); // Even longer delay for names to avoid interrupting typing
+          
+          setFormatTimers(prev => ({ ...prev, professor: timer }));
+        }
+      }
+    }
+  };
+
+  const handleInputBlur = (e: React.FocusEvent<HTMLInputElement>) => {
+    const { name, value } = e.target;
+    
+    // Clear any pending timer for this field
+    if (formatTimers[name]) {
+      clearTimeout(formatTimers[name]);
+      setFormatTimers(prev => {
+        const { [name]: removed, ...rest } = prev;
+        return rest;
+      });
+    }
+    
+    // Format immediately on blur if valid
+    if (name === 'course') {
+      const validation = validateCourse(value);
+      if (validation.isValid && validation.formatted && validation.formatted !== value) {
+        setFormData(prev => ({
+          ...prev,
+          course: validation.formatted!
+        }));
+      }
+    } else if (name === 'professor') {
+      const validation = validateProfessorName(value);
+      if (validation.isValid && validation.formatted && validation.formatted !== value) {
+        setFormData(prev => ({
+          ...prev,
+          professor: validation.formatted!
+        }));
+      }
+    }
   };
 
   const handleSelectChange = (value: string, name: string) => {
@@ -45,11 +164,42 @@ export default function UploadPage() {
       ...prev,
       [name]: value
     }));
+    
+    // Clear validation error for semester when selected
+    if (name === 'semester') {
+      setValidationErrors(prev => ({
+        ...prev,
+        semester: ""
+      }));
+    }
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!file) return;
+
+    // Validate all fields before submission
+    const courseValidation = validateCourse(formData.course);
+    const professorValidation = validateProfessorName(formData.professor);
+    const semesterValidation = validateSemester(semesterValueToLabel(formData.semester));
+    
+    const errors = {
+      course: courseValidation.isValid ? "" : courseValidation.message || "",
+      professor: professorValidation.isValid ? "" : professorValidation.message || "",
+      semester: semesterValidation.isValid ? "" : semesterValidation.message || "",
+    };
+    
+    setValidationErrors(errors);
+    
+    // Don't submit if there are validation errors
+    if (errors.course || errors.professor || errors.semester) {
+      toast({
+        title: "Validation Error",
+        description: "Please correct the highlighted fields before submitting.",
+        variant: "destructive",
+      });
+      return;
+    }
 
     setIsUploading(true);
     
@@ -57,9 +207,9 @@ export default function UploadPage() {
       const formDataToSend = new FormData();
       formDataToSend.append('file', file);
       formDataToSend.append('title', formData.title);
-      formDataToSend.append('course', formData.course);
-      formDataToSend.append('professor', formData.professor);
-      formDataToSend.append('semester', formData.semester);
+      formDataToSend.append('course', courseValidation.formatted || formData.course);
+      formDataToSend.append('professor', professorValidation.formatted || formData.professor);
+      formDataToSend.append('semester', semesterValueToLabel(formData.semester));
       formDataToSend.append('description', formData.description);
 
       const token = localStorage.getItem('auth_token');
@@ -99,6 +249,11 @@ export default function UploadPage() {
         professor: "",
         semester: "",
         description: "",
+      });
+      setValidationErrors({
+        course: "",
+        professor: "",
+        semester: "",
       });
     } catch (error: any) {
       console.error("Upload failed:", error);
@@ -195,9 +350,20 @@ export default function UploadPage() {
                     name="course"
                     value={formData.course}
                     onChange={handleInputChange}
-                    placeholder="e.g., CS 1331"
+                    onBlur={handleInputBlur}
+                    placeholder="e.g., CS 1301"
+                    className={validationErrors.course ? "border-red-500" : ""}
                     required
                   />
+                  {validationErrors.course && (
+                    <div className="flex items-center gap-1 text-sm text-red-500">
+                      <AlertCircle className="h-4 w-4" />
+                      {validationErrors.course}
+                    </div>
+                  )}
+                  <p className="text-xs text-muted-foreground">
+                    Format: SUBJECT NUMBER (e.g., "CS 1301", "ECE 2040")
+                  </p>
                 </div>
                 <div className="space-y-2">
                   <Label htmlFor="professor" className="text-gt-gold">Professor</Label>
@@ -206,9 +372,20 @@ export default function UploadPage() {
                     name="professor"
                     value={formData.professor}
                     onChange={handleInputChange}
-                    placeholder="e.g., Dr. Smith"
+                    onBlur={handleInputBlur}
+                    placeholder="e.g., Jane Smith"
+                    className={validationErrors.professor ? "border-red-500" : ""}
                     required
                   />
+                  {validationErrors.professor && (
+                    <div className="flex items-center gap-1 text-sm text-red-500">
+                      <AlertCircle className="h-4 w-4" />
+                      {validationErrors.professor}
+                    </div>
+                  )}
+                  <p className="text-xs text-muted-foreground">
+                    Enter first and last name without titles (e.g., "Jane Smith", "John Q. Smith")
+                  </p>
                 </div>
               </div>
 
@@ -219,16 +396,26 @@ export default function UploadPage() {
                   onValueChange={(value) => handleSelectChange(value, 'semester')}
                   required
                 >
-                  <SelectTrigger>
+                  <SelectTrigger className={validationErrors.semester ? "border-red-500" : ""}>
                     <SelectValue placeholder="Select semester" />
                   </SelectTrigger>
                   <SelectContent>
-                    <SelectItem value="spring-2024">Spring 2024</SelectItem>
-                    <SelectItem value="fall-2023">Fall 2023</SelectItem>
-                    <SelectItem value="summer-2023">Summer 2023</SelectItem>
-                    <SelectItem value="spring-2023">Spring 2023</SelectItem>
+                    {semesterOptions.map((option) => (
+                      <SelectItem key={option.value} value={option.value}>
+                        {option.label}
+                      </SelectItem>
+                    ))}
                   </SelectContent>
                 </Select>
+                {validationErrors.semester && (
+                  <div className="flex items-center gap-1 text-sm text-red-500">
+                    <AlertCircle className="h-4 w-4" />
+                    {validationErrors.semester}
+                  </div>
+                )}
+                <p className="text-xs text-muted-foreground">
+                  Select the semester when this course was/will be taken
+                </p>
               </div>
 
               <div className="space-y-2">

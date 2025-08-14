@@ -10,7 +10,7 @@ import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger } from "@/co
 
 // Mock data for filters
 const COURSES = ["CS 1301", "CS 1331", "CS 1332", "MATH 1551", "MATH 1552", "PHYS 2211"];
-const PROFESSORS = ["Dr. Smith", "Dr. Johnson", "Dr. Williams", "Dr. Brown"];
+const PROFESSORS = ["Thad Starner", "David Joyner", "Megan Babcock", "Sal Barone"];
 const SEMESTERS = ["Spring 2024", "Fall 2023", "Summer 2023", "Spring 2023"];
 const TYPES = ["Lecture Notes", "Study Guides", "Practice Exams", "Homework"];
 
