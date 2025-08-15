@@ -1,20 +1,13 @@
 import { Pool } from "pg";
-import { Buffer } from "buffer";
 
 let pool: Pool | null = null;
 
 export function getPool(): Pool {
   if (!pool) {
-    if (!process.env.DATABASE_URL) throw new Error("DATABASE_URL is not set");
-
-    const sslConfig = process.env.RDS_CA_BASE64
-      ? { ca: Buffer.from(process.env.RDS_CA_BASE64, "base64").toString("utf-8") }
-      : {  require: true, rejectUnauthorized: false }; // dev: force SSL, ignore self-signed
-
-    pool = new Pool({
-      connectionString: process.env.DATABASE_URL,
-      ssl: sslConfig,
-    });
+    if (!process.env.DATABASE_URL) {
+      throw new Error("DATABASE_URL is not set");
+    }
+    pool = new Pool({ connectionString: process.env.DATABASE_URL });
   }
   return pool;
 }
